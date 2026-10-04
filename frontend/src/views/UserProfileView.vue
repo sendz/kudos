@@ -259,19 +259,12 @@ SPDX-License-Identifier: Apache-2.0
             💚 {{ t('user_profile.kudos_received') }}
           </h2>
 
-          <div v-if="kudos.length" class="kudos-feed flicker">
-            <router-link
-              v-for="k in kudos"
-              :key="k.id"
-              class="kudo-line"
-              :to="`/kudo/${k.slug}`"
-            >
-              <span class="icon">{{ k.category?.icon || '💚' }}</span>
-              <span class="user">@{{ k.fromUser.username }}</span>
-              <span class="message">"{{ k.message }}"</span>
-              <span class="timestamp">{{ formatTime(k.createdAt) }}</span>
-            </router-link>
-          </div>
+          <KudosFeed
+            v-if="kudos.length"
+            :kudos="kudos"
+            :show-recipient="false"
+            flicker
+          />
 
           <div v-else class="quiet">
             <p>💬 {{ t('user_profile.no_kudos') }}</p>
@@ -293,21 +286,7 @@ SPDX-License-Identifier: Apache-2.0
               </small>
             </router-link>
 
-            <div class="kudos-feed">
-              <router-link
-                v-for="k in group.kudos"
-                :key="k.id"
-                class="kudo-line"
-                :to="`/kudo/${k.slug}`"
-              >
-                <span class="icon">{{ k.category?.icon || '💚' }}</span>
-                <span class="user">@{{ k.fromUser.username }}</span>
-                <span class="message">"{{ k.message }}"</span>
-                <span class="timestamp">
-                  <template v-if="k.internal">{{ t('user_profile.team_kudos_internal') }} · </template>{{ formatTime(k.createdAt) }}
-                </span>
-              </router-link>
-            </div>
+            <KudosFeed :kudos="group.kudos" :show-recipient="false" />
 
             <router-link
               v-if="group.total > group.kudos.length"
@@ -336,6 +315,7 @@ import { ref, onMounted, computed, watch } from "vue";
 import { useRoute } from "vue-router";
 import { useAuthStore } from "../store/auth.js";
 import { storeToRefs } from "pinia";
+import KudosFeed from "../components/KudosFeed.vue";
 
 const route = useRoute();
 const auth = useAuthStore();
@@ -408,11 +388,6 @@ function badgeDestination(badge) {
   const fallback = `/badge/${badge.slug}`;
   const rawUrl = badge?.shareUrl || badge?.permalink || badge?.permalinkPath || fallback;
   return { path: toInternalPath(rawUrl, fallback) };
-}
-
-function formatTime(dateStr) {
-  const d = new Date(dateStr)
-  return d.toLocaleDateString([], { month: "short", day: "numeric" })
 }
 
 /* Follow/unfollow */
@@ -738,26 +713,6 @@ const statsSummary = computed(() => {
   font-family: "Pixel Operator Bold", monospace;
   color: var(--geeko-green);
 }
-
-.kudos-feed {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  margin-top: 1rem;
-}
-
-.kudo-line {
-  font-family: "Pixel Operator", monospace;
-  color: #b4ffb4;
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 4px 8px;
-  border-bottom: 1px solid rgba(0,255,0,0.05);
-}
-
-
 
 /* ⭐ followship */
 .followship {
