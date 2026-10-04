@@ -632,6 +632,7 @@ const statsSummary = computed(() => {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  min-width: 0;
 }
 
 @media (max-width: 768px) {
@@ -855,6 +856,7 @@ const statsSummary = computed(() => {
 
 .social-table-wrap {
   overflow-x: auto;
+  max-width: 100%;
 }
 
 .social-table {
@@ -928,5 +930,11 @@ const statsSummary = computed(() => {
   margin-top: 0.7rem;
   color: var(--geeko-green);
   font-family: "Pixel Operator", monospace;
+}
+
+@media (max-width: 768px) {
+  .social-input {
+    min-width: 120px;
+  }
 }
 </style>
