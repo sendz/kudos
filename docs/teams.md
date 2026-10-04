@@ -555,6 +555,18 @@ when clicked. `Notification.link` now holds an in-app path for every type
 waiting on you), clicking the toast opens it, and `team_invite` /
 `team_join_request` toasts stay until clicked or closed.
 
+Correction (2026-10-04): read state now belongs to the client. The 30 s poll
+marked every fetched row read, so anything missed as a toast was gone for
+good. `routes/notifications.js` now exposes `GET /api/notifications` (newest
+first, id cursor, `unread` filter), `GET /api/notifications/unread-count`, and
+explicit `POST /:id/read` and `/read-all`; fetching marks nothing.
+`store/notifications.js` owns the list and the count, `store/auth.js` toasts
+only rows that arrived since the last poll, and `/notifications`
+(`views/NotificationsView.vue`) is the persistent page with All/Unread tabs.
+The avatar in `Header.vue` shows a dot with no number; the profile-menu
+"Notifications" item shows the count. Email is still a separate path through
+kudos-notify.
+
 ### Join requests are emailed, because the in-app nudge reached nobody
 
 In practice the "nudge" above was invisible: the `Notification` rows have no

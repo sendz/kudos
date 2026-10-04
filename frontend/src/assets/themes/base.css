@@ -28,6 +28,10 @@ SPDX-License-Identifier: Apache-2.0
   --text-primary: #222;
   --text-secondary: #555;
   --text-muted: #777;
+
+  /* Unread-count pills: white text on a Radish Red darkened enough for AA
+     contrast, kept as a variable so both counters stay in step. */
+  --count-bg: color-mix(in srgb, var(--radish-red) 68%, black 32%);
 }
 
 * { box-sizing: border-box; }

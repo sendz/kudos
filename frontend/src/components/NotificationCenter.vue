@@ -25,14 +25,18 @@
 import { useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
 import { useNotifications } from "../composables/useNotifications";
+import { useNotificationStore } from "../store/notifications";
 const { state, dismiss } = useNotifications();
 const notifications = state.messages;
+const notificationStore = useNotificationStore();
 const router = useRouter();
 const { t } = useI18n();
 
-// A notification is about something; clicking it should take you there.
+// A notification is about something; clicking it should take you there and,
+// for an account notification, mark the underlying row read.
 function open(msg) {
   dismiss(msg.id);
+  if (msg.notificationId) notificationStore.markRead(msg.notificationId);
   if (msg.link) router.push(msg.link);
 }
 </script>

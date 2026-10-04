@@ -86,6 +86,7 @@ npx prisma db push --force-reset --schema=backend/prisma/schema.prisma
 echo "🌱 Seeding database..."
 node backend/prisma/seed.js || { echo "❌ Seeding failed."; exit 1; }
 node backend/prisma/seed-members.js || { echo "❌ Seeding failed."; exit 1; }
+node backend/prisma/seed-notifications.js || { echo "❌ Notification seeding failed."; exit 1; }
 
 # --- Verify DB presence ---
 DB_PATH="backend/prisma/dev.db"

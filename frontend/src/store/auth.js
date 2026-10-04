@@ -5,6 +5,7 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import { useNotifications } from "../composables/useNotifications";
+import { useNotificationStore } from "./notifications";
 
 const API_BASE = "/api"; // Always call backend; Vite proxy handles this in dev
 
@@ -52,12 +53,15 @@ export const useAuthStore = defineStore("auth", {
           // 🧹 Clear any existing timer before starting a new one
           if (this.notificationTimer) clearInterval(this.notificationTimer);
 
-          // 🔁 Poll for new notifications every 30s
+          // 🔁 Sync notifications now (establishes the toast baseline) and
+          // then every 30s. Reading is owned by the /notifications page.
+          this.loadUnreadNotifications();
           this.notificationTimer = setInterval(() => this.loadUnreadNotifications(), 30_000);
         } else {
           if (this.notificationTimer) clearInterval(this.notificationTimer);
           this.notificationTimer = null;
           this.user = null;
+          useNotificationStore().reset();
           console.log("🚫 No active session.");
         }
       } catch (err) {
@@ -104,47 +108,45 @@ export const useAuthStore = defineStore("auth", {
         console.warn("Logout request failed:", err);
         // On failure, always clear local session as a fallback
         this.user = null;
+      } finally {
+        if (this.notificationTimer) clearInterval(this.notificationTimer);
+        this.notificationTimer = null;
+        useNotificationStore().reset();
       }
     },
 
 
     /**
-     * 🔔 Load unread notifications
+     * 🔔 Surface newly arrived notifications as toasts.
+     *
+     * The rows themselves live in the notification store and are marked read on
+     * /notifications; this only nudges. `pollNew()` returns just the items that
+     * arrived since the last poll, so a reload does not replay history.
      */
     async loadUnreadNotifications() {
       if (!this.user) return;
 
-      try {
-        const res = await fetch(`${API_BASE}/notifications/unread`, {
-          credentials: "include",
+      const store = useNotificationStore();
+      const fresh = await store.pollNew();
+      if (!fresh.length) return;
+
+      const { addNotification } = useNotifications();
+
+      for (const n of fresh) {
+        addNotification({
+          message: n.message,
+          type: n.type || "info",
+          link: n.link || null,
+          notificationId: n.id,
+          // Waiting on you: stays until clicked or closed.
+          timeout: STICKY_TYPES.has(n.type) ? 0 : n.link ? 8000 : 4000,
         });
+      }
 
-        if (!res.ok) {
-          console.warn("Unread notifications request failed:", res.status);
-          return;
-        }
-
-        const list = await res.json();
-        const { addNotification } = useNotifications();
-
-        for (const n of list) {
-          addNotification({
-            message: n.message,
-            type: n.type || "info",
-            link: n.link || null,
-            // Waiting on you: stays until clicked or closed. The server marks
-            // it read as soon as it is fetched, so a toast that times out
-            // is the only chance it gets.
-            timeout: STICKY_TYPES.has(n.type) ? 0 : n.link ? 8000 : 4000,
-          });
-        }
-        // Invites, join requests, approvals and removals change what the
-        // header's teams button shows.
-        if (list.some((n) => n.type?.startsWith("team_"))) {
-          window.dispatchEvent(new Event("kudos:teams-changed"));
-        }
-      } catch (err) {
-        console.error("Failed to load unread notifications:", err);
+      // Invites, join requests, approvals and removals change what the header's
+      // teams button shows.
+      if (fresh.some((n) => n.type?.startsWith("team_"))) {
+        window.dispatchEvent(new Event("kudos:teams-changed"));
       }
     },
   },

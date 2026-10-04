@@ -11,6 +11,7 @@
     "build:frontend": "vite build --outDir ../backend/public",
     "build:backend": "npx prisma generate --schema=backend/prisma/schema.prisma",
     "build:all": "npm run build:backend && npm run build:frontend",
+    "seed:notifications": "node backend/prisma/seed-notifications.js",
     "start": "node backend/src/app.js",
     "clean:prod": "npm prune --omit=dev && rm -rf node_modules/prisma/engines && find node_modules/.prisma/client -type f -name 'libquery_engine-*.so.node' ! -name 'libquery_engine-debian-openssl-3.0.x' -delete 2>/dev/null || true",
     "prisma:vendor": "PRISMA_ENGINES_MIRROR=./node_modules/prisma-engines npx prisma generate --schema=backend/prisma/schema.prisma",

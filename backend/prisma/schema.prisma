@@ -250,4 +250,8 @@ model Notification {
   link      String?  // in-app path the notification opens, e.g. /teams?team=agama
   read      Boolean  @default(false)
   createdAt DateTime @default(now())
+
+  // The list and the unread count both read by user; the count filters on read
+  // and the list pages by id (which grows with createdAt).
+  @@index([userId, read, createdAt])
 }

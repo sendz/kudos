@@ -86,6 +86,20 @@ Example output:
 
 > ⚠️ `db push` is intended for development. For production, ensure schema changes are applied carefully and data is backed up.
 
+#### Seed dummy notifications (development only)
+
+The notification page and the avatar dot need rows to show. This seeder fills
+them for the dev OIDC users (`BobSmith`, `AliceSmith`) with one of every
+notification type, a mix of read and unread, and timestamps spread over a week.
+It refuses to run when `NODE_ENV=production`:
+
+```bash
+npm run seed:notifications          # skip if the users already have rows
+npm run seed:notifications -- --force   # replace their existing rows
+```
+
+`runme-clean.sh` runs it automatically after the other dev seeds.
+
 ---
 
 ## 🏅 Badges & Bots

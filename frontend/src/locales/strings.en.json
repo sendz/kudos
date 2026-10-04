@@ -11,10 +11,23 @@
     "teams_waiting": "1 invite or join request is waiting for you | {count} invites or join requests are waiting for you",
     "logout": "Logout",
     "login": "Login",
-    "my_profile": "My Profile"
+    "my_profile": "My Profile",
+    "notifications": "Notifications",
+    "notifications_aria": "My profile, unread notifications: {count}"
   },
   "notifications": {
-    "dismiss": "Dismiss"
+    "dismiss": "Dismiss",
+    "title": "Notifications",
+    "all": "All",
+    "unread": "Unread",
+    "mark_all_read": "Mark all as read",
+    "load_more": "Load more",
+    "loading": "Loading…",
+    "empty": "Nothing here yet. Kudos, badges and team updates will show up here.",
+    "empty_unread": "You are all caught up.",
+    "failed": "Could not load notifications.",
+    "login_required": "Log in to see your notifications.",
+    "login": "Log in"
   },
   "teams": {
     "title": "Teams",

@@ -164,7 +164,7 @@ SPDX-License-Identifier: Apache-2.0
           class="profile-trigger"
           :aria-expanded="isProfileOpen"
           aria-controls="profile-panel"
-          :aria-label="t('nav.my_profile')"
+          :aria-label="profileLabel"
           :title="user.username"
           @click="toggleProfile"
         >
@@ -174,6 +174,8 @@ SPDX-License-Identifier: Apache-2.0
             class="profile-avatar"
             @error="(e) => handleAvatarError(e, user)"
           />
+          <!-- Unread marker only: no number on the avatar. -->
+          <span v-if="unreadCount > 0" class="profile-dot" aria-hidden="true"></span>
         </button>
 
         <div
@@ -200,6 +202,19 @@ SPDX-License-Identifier: Apache-2.0
           </router-link>
 
           <router-link
+            to="/notifications"
+            class="profile-item profile-notifications"
+            @click="closeProfile"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+              <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+            </svg>
+            <span>{{ t('nav.notifications') }}</span>
+            <span v-if="unreadCount > 0" class="profile-count" aria-hidden="true">{{ displayCount }}</span>
+          </router-link>
+
+          <router-link
             v-if="user?.role === 'ADMIN'"
             to="/admin"
             class="profile-item"
@@ -207,7 +222,6 @@ SPDX-License-Identifier: Apache-2.0
           >
             {{ t('nav.admin') }}
           </router-link>
-
           <button type="button" class="profile-item profile-logout" @click="logout">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
@@ -227,6 +241,7 @@ import { useI18n } from 'vue-i18n';
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useAuthStore } from "../store/auth.js";
+import { useNotificationStore } from "../store/notifications.js";
 import ThemeToggle from "./ThemeToggle.vue";
 import AudioToggle from "./AudioToggle.vue";
 import { getAvatarUrl, handleAvatarError } from "../utils/user.js";
@@ -247,10 +262,32 @@ const backendLoginUrl = `${apiBase}/login`;
 const joinTeamLoginUrl = `${backendLoginUrl}?returnTo=${encodeURIComponent("/teams")}`;
 
 const auth = useAuthStore();
+const notificationStore = useNotificationStore();
 const router = useRouter();
 const route = useRoute();
 const user = computed(() => auth.user);
 const avatarSrc = computed(() => getAvatarUrl(user.value));
+
+// 🔔 Unread count drives both the dot on the avatar and the menu-item badge.
+const unreadCount = computed(() => notificationStore.unreadCount);
+const displayCount = computed(() =>
+  unreadCount.value > 99 ? "99+" : String(unreadCount.value)
+);
+const profileLabel = computed(() =>
+  unreadCount.value
+    ? t("nav.notifications_aria", { count: unreadCount.value })
+    : t("nav.my_profile")
+);
+
+// Keep the count fresh when the session changes; auth.js polls it every 30s.
+watch(
+  () => user.value?.username,
+  (name) => {
+    if (name) notificationStore.fetchCount();
+    else notificationStore.reset();
+  },
+  { immediate: true }
+);
 const users = ref([]);
 const searchQuery = ref("");
 const isSearchOpen = ref(false);
@@ -619,6 +656,7 @@ async function logout() {
 }
 
 .profile-trigger {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -629,7 +667,8 @@ async function logout() {
   border-radius: 50%;
   background: transparent;
   cursor: pointer;
-  overflow: hidden;
+  /* Visible so the unread dot can sit on the rim; the avatar rounds itself. */
+  overflow: visible;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -642,8 +681,37 @@ async function logout() {
 .profile-avatar {
   width: 100%;
   height: 100%;
+  border-radius: 50%;
   object-fit: cover;
   image-rendering: pixelated;
+}
+
+/* A dot only — the number lives on the menu item, not the avatar. */
+.profile-dot {
+  position: absolute;
+  top: -1px;
+  right: -1px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--radish-red);
+  border: 2px solid var(--tile-bg);
+  box-shadow: 0 0 4px color-mix(in srgb, var(--radish-red) 70%, transparent);
+  pointer-events: none;
+}
+
+/* Count on the "Notifications" item, pushed to the end of the row. */
+.profile-count {
+  margin-left: auto;
+  min-width: 1.5em;
+  padding: 0 0.4em;
+  border-radius: 999px;
+  background: var(--count-bg);
+  color: #fff;
+  font-size: 0.78em;
+  font-weight: 600;
+  line-height: 1.5em;
+  text-align: center;
 }
 
 .profile-panel {

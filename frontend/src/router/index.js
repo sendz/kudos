@@ -29,6 +29,7 @@ const routesBase = [
   { path: "/c/:token", name: "EventClaim", component: () => import("../views/EventClaimView.vue"), meta: { title: "Claim your badge · openSUSE Kudos" } },
   { path: "/c/:token/display", name: "EventDisplay", component: () => import("../views/EventDisplayView.vue"), meta: { title: "openSUSE Kudos", bare: true } },
   { path: "/events", name: "events", component: () => import("../views/EventsView.vue"), meta: { title: "Events · openSUSE Kudos", roles: ["ADMIN", "STEWARD"] } },
+  { path: "/notifications", name: "notifications", component: () => import("../views/NotificationsView.vue"), meta: { title: "Notifications · openSUSE Kudos" } },
   { path: "/admin", name: "admin", component: AdminView, meta: { title: "Admin · openSUSE Kudos", roles: ["ADMIN", "BOT"] } },
   { path: "/user/:username", name: "UserProfile", component: () => import("../views/UserProfileView.vue") },
   { path: "/:pathMatch(.*)*", redirect: "/" },
