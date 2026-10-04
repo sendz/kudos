@@ -134,11 +134,14 @@ function formatTime(dateStr) {
 .bubble::before {
   content: "";
   position: absolute;
-  left: 16px;
-  bottom: -9px;
-  border-style: solid;
-  border-width: 9px 8px 0 8px;
-  border-color: var(--card-bg) transparent transparent transparent;
+  left: 18px;
+  bottom: -5px;
+  width: 10px;
+  height: 10px;
+  background: inherit;
+  border-right: 1px solid var(--card-border);
+  border-bottom: 1px solid var(--card-border);
+  transform: rotate(45deg);
 }
 
 .kudo-line:hover .bubble {
@@ -203,6 +206,7 @@ function formatTime(dateStr) {
 .sender .user {
   color: var(--geeko-green);
   font-weight: bold;
+  font-size: 1rem;
 }
 
 .kudo-line .timestamp {
