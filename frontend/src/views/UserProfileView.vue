@@ -10,9 +10,10 @@ SPDX-License-Identifier: Apache-2.0
       <div class="profile-col profile-col-left">
         <header class="profile-header">
           <img
-            :src="user.avatarUrl"
+            :src="getAvatarUrl(user)"
             :alt="user.username || 'user avatar'"
             class="avatar-large"
+            @error="(e) => handleAvatarError(e, user)"
           />
 
           <div class="user-meta">
@@ -47,7 +48,7 @@ SPDX-License-Identifier: Apache-2.0
                   class="follow"
                   :title="u.username"
                 >
-                  <img :src="u.avatarUrl" :alt="u.username" />
+                  <img :src="getAvatarUrl(u)" :alt="u.username" />
                 </router-link>
               </div>
 
@@ -68,7 +69,7 @@ SPDX-License-Identifier: Apache-2.0
                   class="follow"
                   :title="u.username"
                 >
-                  <img :src="u.avatarUrl" :alt="u.username" />
+                  <img :src="getAvatarUrl(u)" :alt="u.username" />
                 </router-link>
               </div>
 
@@ -118,7 +119,7 @@ SPDX-License-Identifier: Apache-2.0
               :to="`/user/${m.username}`"
               class="team-chip"
             >
-              <img :src="m.avatarUrl" :alt="m.displayName" class="team-chip-art" />
+              <img :src="getAvatarUrl(m)" :alt="m.displayName" class="team-chip-art" />
               <span class="team-chip-meta">
                 <strong>{{ m.displayName }}</strong>
                 <small>@{{ m.username }}</small>
@@ -138,7 +139,7 @@ SPDX-License-Identifier: Apache-2.0
                 :to="`/user/${m.username}`"
                 class="team-chip is-former"
               >
-                <img :src="m.avatarUrl" :alt="m.displayName" class="team-chip-art" />
+                <img :src="getAvatarUrl(m)" :alt="m.displayName" class="team-chip-art" />
                 <span class="team-chip-meta">
                   <strong>{{ m.displayName }}</strong>
                   <small>{{ t('teams.former_member') }}</small>
@@ -164,7 +165,7 @@ SPDX-License-Identifier: Apache-2.0
               :to="`/user/${team.username}`"
               class="team-chip"
             >
-              <img :src="team.avatarUrl" :alt="team.displayName" class="team-chip-art" />
+              <img :src="getAvatarUrl(team)" :alt="team.displayName" class="team-chip-art" />
               <span class="team-chip-meta">
                 <strong>{{ team.displayName }}</strong>
                 <small>{{ t('teams.member_count', team.memberCount) }}</small>
@@ -186,7 +187,7 @@ SPDX-License-Identifier: Apache-2.0
                 :to="`/user/${team.username}`"
                 class="team-chip is-former"
               >
-                <img :src="team.avatarUrl" :alt="team.displayName" class="team-chip-art" />
+                <img :src="getAvatarUrl(team)" :alt="team.displayName" class="team-chip-art" />
                 <span class="team-chip-meta">
                   <strong>{{ team.displayName }}</strong>
                   <small>{{ t('teams.former_member') }}</small>
@@ -278,7 +279,7 @@ SPDX-License-Identifier: Apache-2.0
 
           <div v-for="group in teamKudos" :key="group.team.username" class="team-kudos-group">
             <router-link :to="`/user/${group.team.username}`" class="team-kudos-head">
-              <img :src="group.team.avatarUrl" :alt="group.team.displayName" class="team-chip-art" />
+              <img :src="getAvatarUrl(group.team)" :alt="group.team.displayName" class="team-chip-art" />
               <strong>{{ group.team.displayName }}</strong>
               <small>
                 {{ t('user_profile.team_kudos_count', group.total) }}
@@ -316,6 +317,7 @@ import { useRoute } from "vue-router";
 import { useAuthStore } from "../store/auth.js";
 import { storeToRefs } from "pinia";
 import KudosFeed from "../components/KudosFeed.vue";
+import { getAvatarUrl, handleAvatarError } from "../utils/user.js";
 
 const route = useRoute();
 const auth = useAuthStore();
