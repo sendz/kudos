@@ -116,10 +116,12 @@ function formatTime(dateStr) {
 
 .bubble {
   position: relative;
-  display: inline-flex;
+  display: flex;
   flex-direction: column;
   gap: 0.4rem;
+  width: fit-content;
   max-width: 100%;
+  min-width: 0;
   padding: 0.6rem 0.9rem;
   background: var(--card-bg);
   border: 1px solid var(--card-border);
@@ -186,10 +188,12 @@ function formatTime(dateStr) {
   color: var(--text-primary);
   line-height: 1.4;
   word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .sender {
   display: flex;
+  flex-wrap: wrap;
   align-items: baseline;
   gap: 0.6rem;
   margin: 0.4rem 0 0 1.4rem;
@@ -217,8 +221,10 @@ function formatTime(dateStr) {
 
 .users-group {
   display: inline-flex;
+  flex-wrap: wrap;
   gap: 0;
   align-items: center;
+  min-width: 0;
 }
 
 .users-group .user {
@@ -245,6 +251,23 @@ function formatTime(dateStr) {
 
 .kudos-feed--compact .kudo-line .message {
   font-size: 0.9rem;
+}
+
+@media (max-width: 720px) {
+  .bubble {
+    padding: 0.5rem 0.7rem;
+    border-radius: 14px;
+    border-bottom-left-radius: 4px;
+  }
+
+  .bubble-head {
+    font-size: 0.82em;
+  }
+
+  .sender {
+    margin-left: 1.1rem;
+    font-size: 0.8rem;
+  }
 }
 
 @keyframes pulse {
